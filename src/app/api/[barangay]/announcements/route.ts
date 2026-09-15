@@ -1,6 +1,6 @@
-import { createListRoute } from "@/lib/api-handler";
+﻿import { createListRoute } from "@/lib/api-handler";
 
-export const { GET, POST } = createListRoute({
+const { GET, POST } = createListRoute({
   collection: "announcements",
   searchable: ["title", "body"],
   filterable: ["category", "is_published", "is_pinned"],
@@ -13,3 +13,5 @@ export const { GET, POST } = createListRoute({
     return null;
   },
 });
+
+export { GET, POST };
