@@ -1,0 +1,13 @@
+import { createListRoute } from "@/lib/api-handler";
+
+export const { GET, POST } = createListRoute({
+  collection: "cases",
+  searchable: ["case_reference", "subject", "summary", "nature"],
+  filterable: ["status", "case_type"],
+  sortable: ["filed_date", "created_at", "case_reference"],
+  validate: (body: any) => {
+    if (!body.case_reference) return "case_reference required";
+    if (!body.subject) return "subject required";
+    return null;
+  },
+});
