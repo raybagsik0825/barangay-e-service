@@ -1,5 +1,7 @@
-import { createDetailRoute } from "@/lib/api-handler";
+﻿import { createDetailRoute } from "@/lib/api-handler";
 
-export const { GET, PUT, DELETE } = createDetailRoute({
+const { GET, PUT, DELETE } = createDetailRoute({
   collection: "announcements",
 });
+
+export { GET, PUT, DELETE };
