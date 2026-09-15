@@ -1,7 +1,8 @@
-import { NextResponse, NextRequest } from "next/server";
-import { ObjectId, Filter, Document } from "mongodb";
+import { NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
+import type { Filter, Document } from "mongodb";
 import { getCollection } from "./mongodb";
-import { authenticate, JwtPayload } from "./auth";
+import { authenticate } from "./auth";
 
 // ---------- Types ----------------------------------------------------------
 
@@ -21,25 +22,25 @@ export interface CrudOptions {
 interface ListQuery {
   search?: string;
   sort?: string;
-  page?: number;
-  limit?: number;
-  [key: string]: string | undefined;
+  page: number;
+  limit: number;
+  [key: string]: string | number | undefined;
 }
 
 // ---------- Helpers --------------------------------------------------------
 
 function parseQuery(request: Request): ListQuery {
   const url = new URL(request.url);
+  const extra: Record<string, string> = {};
+  for (const [k, v] of url.searchParams.entries()) {
+    if (!["search", "sort", "page", "limit"].includes(k)) extra[k] = v;
+  }
   return {
-    search:  url.searchParams.get("search")  ?? undefined,
-    sort:    url.searchParams.get("sort")    ?? undefined,
-    page:    Number(url.searchParams.get("page")  ?? "1"),
-    limit:   Number(url.searchParams.get("limit") ?? "50"),
-    ...Object.fromEntries(
-      [...url.searchParams.entries()].filter(([k]) =>
-        !["search", "sort", "page", "limit"].includes(k)
-      )
-    ),
+    search: url.searchParams.get("search") ?? undefined,
+    sort: url.searchParams.get("sort") ?? undefined,
+    page: Math.max(1, Number(url.searchParams.get("page") ?? "1") || 1),
+    limit: Math.min(500, Math.max(1, Number(url.searchParams.get("limit") ?? "50") || 50)),
+    ...extra,
   };
 }
 
@@ -78,7 +79,7 @@ function buildSort(sortStr?: string, defaults: Record<string, 1 | -1> = { create
 // ---------- List + Create --------------------------------------------------
 
 export function createListRoute(opts: CrudOptions) {
-  const { collection, searchable, filterable, sortable, validate } = opts;
+  const { collection, validate } = opts;
 
   async function GET(request: Request) {
     const auth = authenticate(request);
