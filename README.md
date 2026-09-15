@@ -70,6 +70,30 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000).
 Default admin login: `admin` / `Admin123!@#` (change immediately).
 
+## Deploying on Vercel with MongoDB Atlas
+
+1. Create a free cluster on **cloud.mongodb.com** → copy the **Drivers** connection string.
+2. On **Vercel** → New Project → import this repo.
+3. Add env vars:
+
+   | Variable | Value |
+   | --- | --- |
+   | `MONGODB_URI` | your `mongodb+srv://...` string |
+   | `JWT_SECRET` | long random string |
+   | `ENABLE_BOOTSTRAP` | `true` (first deploy only) |
+
+4. Deploy. Then create the initial admin:
+
+   ```bash
+   curl -X POST https://<your-app>.vercel.app/api/auth/bootstrap \
+     -H "Content-Type: application/json" \
+     -d '{"username":"admin","password":"YourStrongPassword","fullName":"System Administrator"}'
+   ```
+
+5. Remove `ENABLE_BOOTSTRAP` from Vercel env, then deploy again.
+6. Login is now active at `/api/auth/login`. (Alternatively run `npm run seed`
+   locally if you have Node.js.)
+
 ## Scripts
 
 | Command | Description |
