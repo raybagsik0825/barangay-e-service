@@ -1,9 +1,73 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Building2, Menu, X, Lock, ChevronDown } from "lucide-react";
+import { Building2, Menu, X, Lock, ChevronDown, MapPin, Check } from "lucide-react";
 import { navLinks } from "@/lib/site";
+import { barangays } from "@/lib/barangays";
+import { useBarangay } from "@/lib/barangay-context";
+
+function BarangayMenu({ onPick }: { onPick?: () => void }) {
+  const { slug, setSlug } = useBarangay();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const current = barangays.find((b) => b.slug === slug) ?? barangays[0];
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-primary-600 hover:bg-primary-50 transition-all"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <MapPin className="w-4 h-4 text-primary-600" />
+        <span className="max-w-[130px] truncate">{current.name}</span>
+        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-xl border border-slate-100 bg-white shadow-xl z-50 py-1.5"
+        >
+          <p className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Select barangay
+          </p>
+          {barangays.map((b) => (
+            <button
+              key={b.slug}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setSlug(b.slug);
+                setOpen(false);
+                onPick?.();
+              }}
+              className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
+                b.slug === slug
+                  ? "bg-primary-50 text-primary-700 font-semibold"
+                  : "text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              <span className="truncate">{b.name}</span>
+              {b.slug === slug && <Check className="w-4 h-4 shrink-0" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -71,14 +135,14 @@ export default function Navbar() {
             ))}
           </ul>
 
+          <div className="hidden lg:flex items-center gap-1">
+            <BarangayMenu />
+          </div>
+
           <div className="hidden lg:flex items-center gap-3">
-            <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="btn-primary"
-            >
+            <Link href="/login" className="btn-primary">
               <Lock className="w-4 h-4" /> Admin Login
-            </a>
+            </Link>
           </div>
 
           {/* Mobile toggle */}
@@ -135,10 +199,16 @@ export default function Navbar() {
             </li>
           ))}
         </ul>
+        <div className="px-6 pt-2">
+          <p className="px-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Barangay
+          </p>
+          <BarangayMenu onPick={() => setOpen(false)} />
+        </div>
         <div className="px-6 pb-8 mt-2">
-          <a href="#" onClick={(e) => e.preventDefault()} className="btn-primary w-full justify-center">
+          <Link href="/login" onClick={() => setOpen(false)} className="btn-primary w-full justify-center">
             <Lock className="w-4 h-4" /> Admin Login
-          </a>
+          </Link>
         </div>
       </div>
     </>
