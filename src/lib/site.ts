@@ -41,6 +41,7 @@ export const navLinks = [
   { label: "Hearings", href: "#hearings" },
   { label: "Safety", href: "#crime-db" },
   { label: "PNP Portal", href: "#pnp-portal" },
+  { label: "Projects", href: "#projects" },
   { label: "Lost & Found", href: "#lost-found" },
 ] as const;
 
@@ -100,6 +101,27 @@ export const announcements = [
     title: "Road Repair Advisory — Purok 2 Main Road",
     description:
       "Paving and drainage improvement works will commence on August 18. Residents are advised to use alternate routes during construction hours.",
+  },
+] as const;
+
+export const projects = [
+  {
+    date: "September 2026",
+    title: "Drainage Improvement — Purok 2",
+    description:
+      "Canal declogging and drainage repair works to prevent flooding during the rainy season.",
+  },
+  {
+    date: "August 2026",
+    title: "Barangay Hall Solar Lighting",
+    description:
+      "Installation of solar-powered street and plaza lights around the Barangay Hall compound.",
+  },
+  {
+    date: "July 2026",
+    title: "Community Health Center Upgrade",
+    description:
+      "Renovation of the health center waiting area and procurement of basic medical equipment.",
   },
 ] as const;
 
