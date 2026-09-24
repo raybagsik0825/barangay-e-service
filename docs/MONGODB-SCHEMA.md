@@ -7,12 +7,12 @@
 
 ## 1. Multi-Tenant Architecture
 
-One **admin** database holds login accounts; every barangay gets its **own database** so
+One **barangay_auth** database holds login accounts; every barangay gets its **own database** so
 records, files, and settings are fully isolated per barangay.
 
 ```
 MongoDB Cluster
-├── admin                    ← users, permissions, activity_logs (all barangays)
+├── barangay_auth             ← users, permissions, activity_logs (all barangays)
 │
 ├── brgy_binuangan           ← one database PER barangay
 ├── brgy_nbbs_kaunlaran
@@ -39,7 +39,7 @@ Routing: `GET /api/:barangay/cases` → `client.db("brgy_" + slug)` → `cases` 
 
 ---
 
-## 2. Admin Database (`admin`)
+## 2. Auth Database (`barangay_auth`)
 
 ### `users` — admin panel accounts
 | Field | Type | Notes |
@@ -72,7 +72,7 @@ navbar function on the portal.
 | title, body | string |
 | category | `advisory\|event\|health\|project\|alert` |
 | is_pinned, is_published | boolean |
-| author_id | ObjectId → admin.users |
+| author_id | ObjectId → barangay_auth.users |
 | published_at, expires_at | date |
 | created_at, updated_at | date |
 
@@ -128,7 +128,7 @@ claimed_at`.
 | title, description | string | |
 | file_name, mime_type, file_size | string/number | |
 | is_public | boolean | gates public download |
-| uploaded_by | ObjectId → admin.users | |
+| uploaded_by | ObjectId → barangay_auth.users | |
 
 The **file bytes themselves live in GridFS** (`uploads.files` + `uploads.chunks`),
 which is cloud object storage when the cluster runs on **MongoDB Atlas** — no extra
