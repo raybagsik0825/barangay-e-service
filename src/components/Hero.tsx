@@ -1,8 +1,10 @@
 "use client";
 
-import { CheckCircle2, CalendarCheck, ArrowDown, ChevronDown } from "lucide-react";
+import { CheckCircle2, CalendarCheck, ArrowDown, ChevronDown, MapPin } from "lucide-react";
+import { useBarangay } from "@/lib/barangay-context";
 
 export default function Hero() {
+  const { name } = useBarangay();
   return (
     <section className="relative isolate overflow-hidden">
       {/* Background */}
@@ -26,6 +28,11 @@ export default function Hero() {
         <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/25 rounded-full px-4 py-1.5 text-sm font-medium text-white animate-fade-down">
           <CheckCircle2 className="w-4 h-4 text-emerald-300" />
           Official Barangay Digital Platform
+        </div>
+
+        <div className="mt-4 inline-flex items-center gap-1.5 text-white/90 text-sm font-semibold tracking-wide uppercase animate-fade-down">
+          <MapPin className="w-4 h-4 text-emerald-300" />
+          Barangay {name}
         </div>
 
         <h1 className="mt-6 text-4xl md:text-6xl font-extrabold leading-tight tracking-tight text-white animate-fade-up">
