@@ -114,6 +114,14 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-6 text-center text-sm text-slate-500">
           &copy; 2026 Barangay Management & Lupon Hearing System. All Rights Reserved.
+          <p className="mt-2">
+            Developed by{" "}
+            <span className="font-semibold text-slate-300">Ray A. Panganiban</span>
+            {" · "}
+            <a href="tel:+639564804965" className="hover:text-white transition-colors">
+              09564804965
+            </a>
+          </p>
         </div>
       </div>
     </footer>
