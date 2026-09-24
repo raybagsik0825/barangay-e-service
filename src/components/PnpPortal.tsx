@@ -1,19 +1,47 @@
 "use client";
 
-import { FileSignature } from "lucide-react";
+import { FileSignature, Loader2, CheckCircle2, AlertCircle, Building2 } from "lucide-react";
 import { useState } from "react";
+import { useBarangay } from "@/lib/barangay-context";
 import Reveal from "./Reveal";
 
 export default function PnpPortal() {
+  const { slug, name } = useBarangay();
+  const [office, setOffice] = useState("");
+  const [purpose, setPurpose] = useState("");
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRequest = () => {
+  async function handleRequest(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    setDone(null);
+    setError(null);
+    try {
+      const requestCode = `REQ-${Date.now().toString().slice(-8)}`;
+      const r = await fetch(`/api/${slug}/document-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          request_code: requestCode,
+          requesting_office: office.trim(),
+          purpose: purpose.trim(),
+        }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error((j as { error?: string }).error || `HTTP ${r.status}`);
+      }
+      setDone(`Request ${requestCode} submitted to ${name}. The barangay will review and fulfill it.`);
+      setOffice("");
+      setPurpose("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Request failed");
+    } finally {
       setLoading(false);
-      alert("Redirecting to secure PNP Portal authentication...");
-    }, 800);
-  };
+    }
+  }
 
   return (
     <section id="pnp-portal" className="py-16 md:py-24">
@@ -21,7 +49,7 @@ export default function PnpPortal() {
         <Reveal>
           <div className="section-title">
             <span className="inline-block bg-primary-50 text-primary-600 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-              Law Enforcement
+              Law Enforcement · {name}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800">
               PNP Document Portal
@@ -45,14 +73,54 @@ export default function PnpPortal() {
               office can access and request generated PDF files (CFA, hearing logs,
               and complaint records) for further legal actions.
             </p>
-            <button
-              onClick={handleRequest}
-              disabled={loading}
-              className="btn-primary mt-6 justify-center disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <FileSignature className="w-4 h-4" />
-              {loading ? "Redirecting..." : "Request PDF Records"}
-            </button>
+
+            <form onSubmit={handleRequest} className="mt-6 text-left flex flex-col gap-3">
+              <label className="block text-sm">
+                <span className="font-medium text-slate-700 flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-slate-400" /> Requesting office
+                </span>
+                <input
+                  value={office}
+                  onChange={(e) => setOffice(e.target.value)}
+                  required
+                  placeholder="e.g. Navotas City Police Station"
+                  className="mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none transition-all"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="font-medium text-slate-700">Purpose / files needed</span>
+                <textarea
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value)}
+                  required
+                  rows={3}
+                  placeholder="e.g. CFA copy for case CF-2026-0891"
+                  className="mt-1 w-full rounded-xl border-2 border-slate-200 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none transition-all"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary mt-2 justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
+                ) : (
+                  <><FileSignature className="w-4 h-4" /> Request PDF Records</>
+                )}
+              </button>
+            </form>
+
+            {done && (
+              <p className="mt-4 flex items-start gap-2 text-sm text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-left">
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" /> {done}
+              </p>
+            )}
+            {error && (
+              <p className="mt-4 flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-left">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> {error}
+              </p>
+            )}
           </div>
         </Reveal>
       </div>
