@@ -2,6 +2,7 @@
 
 const { GET, PUT, DELETE } = createDetailRoute({
   collection: "announcements",
+  publicRead: true,
 });
 
 export { GET, PUT, DELETE };
