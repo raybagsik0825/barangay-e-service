@@ -2,6 +2,7 @@
 
 const { GET, POST } = createListRoute({
   collection: "hearings",
+  publicRead: true,
   searchable: ["venue", "outcome_notes"],
   filterable: ["case_id", "status"],
   sortable: ["scheduled_date", "created_at"],
