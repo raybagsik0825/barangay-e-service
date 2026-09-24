@@ -5,7 +5,7 @@
 //   MONGODB_URI="mongodb+srv://..." node database/seed.js
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017";
-const ADMIN_DB = process.env.MONGODB_DB_ADMIN || "admin";
+const ADMIN_DB = process.env.MONGODB_DB_ADMIN || "barangay_auth";
 
 const BARANGAYS = [
   { slug: "binuangan",        name: "Binuangan" },
