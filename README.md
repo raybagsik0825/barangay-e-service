@@ -79,6 +79,7 @@ Default admin login: `admin` / `Admin123!@#` (change immediately).
    | Variable | Value |
    | --- | --- |
    | `MONGODB_URI` | your `mongodb+srv://...` string |
+   | `MONGODB_DB_ADMIN` | `barangay_auth` |
    | `JWT_SECRET` | long random string |
    | `ENABLE_BOOTSTRAP` | `true` (first deploy only) |
 
@@ -93,6 +94,22 @@ Default admin login: `admin` / `Admin123!@#` (change immediately).
 5. Remove `ENABLE_BOOTSTRAP` from Vercel env, then deploy again.
 6. Login is now active at `/api/auth/login`. (Alternatively run `npm run seed`
    locally if you have Node.js.)
+
+## Bulk account provisioning (superadmin + 19 barangay staff)
+
+1. Add env var `SEED_SECRET` = a long random string, then redeploy.
+2. Run once:
+
+   ```bash
+   curl -X POST https://<your-app>.vercel.app/api/auth/seed-accounts \
+     -H "Content-Type: application/json" \
+     -H "x-seed-secret: <SEED_SECRET>" \
+     -d '{"password":"badboy666"}'
+   ```
+
+   Creates `superadmin` (all barangays) + one `staff` user per barangay slug
+   (e.g. `san-roque`), each scoped to its own database.
+3. Remove `SEED_SECRET` from Vercel env, then redeploy.
 
 ## Scripts
 
