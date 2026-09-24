@@ -121,6 +121,10 @@ export default function Footer() {
             <a href="tel:+639564804965" className="hover:text-white transition-colors">
               09564804965
             </a>
+            {" · "}
+            <a href="mailto:raypanganiban0825@gmail.com" className="hover:text-white transition-colors">
+              raypanganiban0825@gmail.com
+            </a>
           </p>
         </div>
       </div>
