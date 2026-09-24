@@ -32,9 +32,9 @@ interface ListQuery {
 function parseQuery(request: Request): ListQuery {
   const url = new URL(request.url);
   const extra: Record<string, string> = {};
-  for (const [k, v] of url.searchParams.entries()) {
+  url.searchParams.forEach((v, k) => {
     if (!["search", "sort", "page", "limit"].includes(k)) extra[k] = v;
-  }
+  });
   return {
     search: url.searchParams.get("search") ?? undefined,
     sort: url.searchParams.get("sort") ?? undefined,
