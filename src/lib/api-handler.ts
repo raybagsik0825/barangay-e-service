@@ -17,6 +17,10 @@ export interface CrudOptions {
   sortable?: string[];
   /** Validate body before insert/update */
   validate?: (body: unknown) => string | null;
+  /** Allow unauthenticated GET (public portal reads). Writes stay protected. */
+  publicRead?: boolean;
+  /** Allow unauthenticated POST (public forms, e.g. PNP requests). PUT/DELETE stay protected. */
+  publicCreate?: boolean;
 }
 
 interface ListQuery {
@@ -82,8 +86,10 @@ export function createListRoute(opts: CrudOptions) {
   const { collection, validate } = opts;
 
   async function GET(request: Request) {
-    const auth = authenticate(request);
-    if (auth instanceof NextResponse) return auth;
+    if (!opts.publicRead) {
+      const auth = authenticate(request);
+      if (auth instanceof NextResponse) return auth;
+    }
 
     const barangay = extractBarangay(request.url);
     if (!barangay) return NextResponse.json({ error: "Invalid barangay" }, { status: 400 });
@@ -109,8 +115,10 @@ export function createListRoute(opts: CrudOptions) {
   }
 
   async function POST(request: Request) {
-    const auth = authenticate(request);
-    if (auth instanceof NextResponse) return auth;
+    if (!opts.publicCreate) {
+      const auth = authenticate(request);
+      if (auth instanceof NextResponse) return auth;
+    }
 
     const barangay = extractBarangay(request.url);
     if (!barangay) return NextResponse.json({ error: "Invalid barangay" }, { status: 400 });
@@ -140,8 +148,10 @@ export function createDetailRoute(opts: CrudOptions) {
   const { collection, validate } = opts;
 
   async function GET(request: Request, { params }: { params: { id: string } }) {
-    const auth = authenticate(request);
-    if (auth instanceof NextResponse) return auth;
+    if (!opts.publicRead) {
+      const auth = authenticate(request);
+      if (auth instanceof NextResponse) return auth;
+    }
 
     const barangay = extractBarangay(request.url);
     if (!barangay) return NextResponse.json({ error: "Invalid barangay" }, { status: 400 });
