@@ -2,6 +2,7 @@
 
 const { GET, POST } = createListRoute({
   collection: "lost_found_items",
+  publicRead: true,
   searchable: ["item_name", "description", "location"],
   filterable: ["type", "status", "category"],
   sortable: ["date_lost_found", "created_at"],
