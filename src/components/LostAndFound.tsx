@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { lostAndFound, Icons } from "@/lib/site";
+import { lostAndFound as staticItems, Icons } from "@/lib/site";
+import { useBarangay } from "@/lib/barangay-context";
+import { usePublicList } from "@/lib/use-public";
 import Reveal from "./Reveal";
 
 const tabs = ["All", "Lost", "Found"] as const;
@@ -17,13 +19,50 @@ const borderAccent: Record<string, string> = {
   found: "border-t-secondary-400",
 };
 
+interface ApiItem {
+  _id: string;
+  item_name: string;
+  type: "lost" | "found";
+  location: string;
+  date_lost_found?: string;
+  description: string;
+}
+
+function formatDate(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
 export default function LostAndFound() {
+  const { name } = useBarangay();
   const [active, setActive] = useState<Tab>("All");
+  const { data } = usePublicList<ApiItem>("lost-found", "?limit=30&sort=-date_lost_found", []);
+
+  const all =
+    data.length > 0
+      ? data
+          .filter((d) => d.type === "lost" || d.type === "found")
+          .map((d) => ({
+            key: d._id,
+            type: d.type,
+            title: d.item_name,
+            location: d.location,
+            date: formatDate(d.date_lost_found),
+            description: d.description,
+          }))
+      : staticItems.map((d) => ({
+          key: d.title,
+          type: d.type as "lost" | "found",
+          title: d.title,
+          location: d.location,
+          date: d.date,
+          description: d.description,
+        }));
 
   const items =
-    active === "All"
-      ? lostAndFound
-      : lostAndFound.filter((item) => item.type === active.toLowerCase());
+    active === "All" ? all : all.filter((item) => item.type === active.toLowerCase());
 
   return (
     <section id="lost-found" className="bg-white py-16 md:py-24">
@@ -31,7 +70,7 @@ export default function LostAndFound() {
         <Reveal>
           <div className="section-title">
             <span className="inline-block bg-primary-50 text-primary-600 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-              Community Service
+              Community Service · {name}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800">
               Lost &amp; Found
@@ -63,7 +102,7 @@ export default function LostAndFound() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item, i) => (
-            <Reveal key={item.title} delay={i * 100}>
+            <Reveal key={item.key} delay={i * 100}>
               <article
                 className={`bg-slate-50 rounded-xl border-t-4 ${borderAccent[item.type]} shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 p-6 h-full`}
               >
