@@ -20,7 +20,9 @@ export async function getClient(): Promise<MongoClient> {
 
 export async function getAdminDb(): Promise<Db> {
   const client = await getClient();
-  return client.db(process.env.MONGODB_DB_ADMIN || "admin");
+  // NOTE: must NOT be the reserved "admin" database — Atlas blocks
+  // app-level access to it. Use a normal database instead.
+  return client.db(process.env.MONGODB_DB_ADMIN || "barangay_auth");
 }
 
 // Resolve a barangay slug to a per-barangay database instance:
